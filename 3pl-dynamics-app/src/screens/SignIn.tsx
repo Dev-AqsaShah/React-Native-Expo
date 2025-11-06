@@ -1,87 +1,225 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+// src/screens/SignIn.tsx
+import { useRef, useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  Animated,
+  Image,
+  Platform,
+  StyleSheet,
+  Dimensions,
+  KeyboardAvoidingView,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const Colors = {
-  primary: '#003366', // Dark Blue
-  primaryLight: '#E6EEF9',
-  white: '#FFFFFF',
-};
+const PRIMARY = '#002855'; // darker rich blue
+const WHITE = '#FFFFFF';
+const MUTED = '#64748B';
 
-export default function SignInScreen() {
-  const navigation = useNavigation();
+export default function SignIn() {
+  const navigation = useNavigation<any>();
+
+  // Animation for logo
+  const scale = useRef(new Animated.Value(0.8)).current;
+  const translateY = useRef(new Animated.Value(-10)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(scale, { toValue: 1, duration: 700, useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: 0, duration: 700, useNativeDriver: true }),
+      Animated.timing(opacity, { toValue: 1, duration: 700, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  function handleSignIn() {
+    navigation.replace('Home');
+  }
+
+  function handleForgotPassword() {
+    navigation.navigate('SignUp');
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Welcome Back 👋</Text>
-      <Text style={styles.subHeading}>Sign in to continue to 3PL Dynamics</Text>
+      {/* Extended Blue Area */}
+      <View style={styles.topArea}>
+        <Animated.View
+          style={[
+            styles.logoWrap,
+            { transform: [{ translateY }, { scale }], opacity },
+          ]}
+        >
+          <Image
+            source={require('../../assets/images/3pl dynamics-logo.jpeg')}
+            style={styles.logo}
+          />
+        </Animated.View>
 
-      <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#7A7A7A" />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        placeholderTextColor="#7A7A7A"
-      />
+        <Text style={styles.topTitle}>Welcome Back</Text>
+        <Text style={styles.topSubtitle}>Sign in to continue to 3PL Dynamics</Text>
+      </View>
 
-      <TouchableOpacity style={styles.primaryBtn}>
-        <Text style={styles.primaryText}>Sign In</Text>
-      </TouchableOpacity>
+      {/* White rounded card with form */}
+      <KeyboardAvoidingView
+        style={styles.formWrap}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View style={styles.formCard}>
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Email"
+            placeholderTextColor="#9AA3B2"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            style={styles.input}
+          />
 
-      <TouchableOpacity onPress={() => navigation.navigate('SignUp' as never)}>
-        <Text style={styles.link}>
-          Dont have an account? <Text style={styles.linkBold}>Create Account</Text>
-        </Text>
-      </TouchableOpacity>
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Password"
+            placeholderTextColor="#9AA3B2"
+            secureTextEntry
+            style={styles.input}
+          />
+
+          <Pressable onPress={handleForgotPassword} style={styles.forgotWrap}>
+            <Text style={styles.forgotText}>Forgot password?</Text>
+          </Pressable>
+
+          <Pressable onPress={handleSignIn} style={styles.signInBtn}>
+            <Text style={styles.signInText}>Sign In</Text>
+          </Pressable>
+
+          <Pressable onPress={() => navigation.navigate('SignUp')} style={styles.createWrap}>
+            <Text style={styles.createText}>
+              Don't have an account?{' '}
+              <Text style={styles.createTextBold}>Create Account</Text>
+            </Text>
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
     </View>
   );
 }
 
+const { height: H, width: W } = Dimensions.get('window');
+const TOP_HEIGHT = Math.max(280, H * 0.42); // extended blue height
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
-    padding: 24,
+    backgroundColor: WHITE,
+  },
+
+  topArea: {
+    height: TOP_HEIGHT,
+    backgroundColor: PRIMARY,
+    alignItems: 'center',
+    justifyContent: 'flex-end', // moves content lower
+    paddingHorizontal: 20,
+    paddingBottom: 30, // pushes text and image down
+  },
+  logoWrap: {
+    alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 10,
   },
-  heading: {
-    fontSize: 28,
-    fontWeight: '700' as const,
-    color: Colors.primary,
+  logo: {
+    width: Math.min(120, W * 0.28),
+    height: Math.min(120, W * 0.28),
+    borderRadius: 9999,
+    resizeMode: 'cover',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  topTitle: {
+    marginTop: 10,
+    color: WHITE,
+    fontSize: 22,
+    fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 8,
   },
-  subHeading: {
-    fontSize: 16,
-    color: '#555',
+  topSubtitle: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 14,
+    marginTop: 20,
     textAlign: 'center',
-    marginBottom: 30,
   },
+
+  formWrap: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+  },
+  formCard: {
+    backgroundColor: WHITE,
+    borderRadius: 16,
+    padding: 20,
+    marginTop: -60,
+    borderWidth: 1.5,
+    borderColor: PRIMARY,
+    // shadow on all sides
+    shadowColor: PRIMARY,
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 10,
+  },
+
   input: {
     borderWidth: 1,
-    borderColor: '#E6EEF9',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 14,
-    backgroundColor: Colors.primaryLight,
-  },
-  primaryBtn: {
-    backgroundColor: Colors.primary,
-    padding: 14,
+    borderColor: '#28456eff',
+    backgroundColor: '#eaf0fbff',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
     borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  primaryText: {
-    color: Colors.white,
-    fontWeight: '600' as const,
-  },
-  link: {
-    color: Colors.primary,
-    textAlign: 'center',
-    marginTop: 20,
+    marginBottom: 12,
     fontSize: 15,
+    color: '#020305ff',
   },
-  linkBold: {
-    fontWeight: '700' as const,
+
+  forgotWrap: {
+    alignSelf: 'flex-end',
+    marginBottom: 8,
+  },
+  forgotText: {
+    color: PRIMARY,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+
+  signInBtn: {
+    backgroundColor: PRIMARY,
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  signInText: {
+    color: WHITE,
+    fontWeight: '700',
+    fontSize: 16,
+  },
+
+  createWrap: {
+    marginTop: 14,
+    alignItems: 'center',
+  },
+  createText: {
+    color: MUTED,
+    fontSize: 14,
+  },
+  createTextBold: {
+    color: PRIMARY,
+    fontWeight: '700',
   },
 });
