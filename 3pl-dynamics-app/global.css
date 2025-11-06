@@ -1,3 +1,12 @@
+:root {
+  --primary: #0B3B8F;
+  --primary-light: #EAF2FF;
+}
+
+/* Tailwind layers */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* optional extra */
+html, body, #root { height: 100%; }

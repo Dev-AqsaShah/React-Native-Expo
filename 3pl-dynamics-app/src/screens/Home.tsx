@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors } from '../theme';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
