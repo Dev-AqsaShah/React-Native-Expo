@@ -1,18 +1,16 @@
-import './global.css';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { NavigationContainer } from '@react-navigation/native';
-import RootStack from './src/navigation';
+// App.tsx
+import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
+import { NavigationContainer } from '@react-navigation/native';
+import RootStack from './src/navigation'; // <- ensure this path is correct
 
 export default function App() {
-return (
-<GestureHandlerRootView style={{ flex: 1 }}>
-<SafeAreaProvider>
-<NavigationContainer>
-<RootStack />
-</NavigationContainer>
-</SafeAreaProvider>
-</GestureHandlerRootView>
-);
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <StatusBar barStyle="light-content" />
+        <RootStack />
+      </NavigationContainer>
+    </SafeAreaProvider>
+  );
 }

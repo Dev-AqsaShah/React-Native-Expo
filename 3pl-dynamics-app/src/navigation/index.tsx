@@ -29,33 +29,34 @@
 // }
 
 
+
 // src/navigation/index.tsx
-import React from 'react';
-import { JSX } from 'react';
+import React, { JSX } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Welcome from '../screens/Welcome';
 import SignIn from '../screens/SignIn';
 import SignUp from '../screens/Signup';
-import Home from '../screens/Home';
+import MainTabs from './MainTabs'; // <- make sure file exists
 
-// <-- named export for the route param list
 export type RootStackParamList = {
   Welcome: undefined;
   SignIn: undefined;
   SignUp: undefined;
-  Home: undefined;
+  MainTabs: undefined;
 };
 
-// Use `any` for the Stack to avoid TypeScript overload issues in this simple setup
 const Stack: any = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootStack(): JSX.Element {
   return (
-    <Stack.Navigator initialRouteName="Welcome" screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      initialRouteName="Welcome" // change to "MainTabs" below for testing if you like
+      screenOptions={{ headerShown: false }}
+    >
       <Stack.Screen name="Welcome" component={Welcome as any} />
       <Stack.Screen name="SignIn" component={SignIn as any} />
       <Stack.Screen name="SignUp" component={SignUp as any} />
-      <Stack.Screen name="Home" component={Home as any} />
+      <Stack.Screen name="MainTabs" component={MainTabs as any} />
     </Stack.Navigator>
   );
 }
