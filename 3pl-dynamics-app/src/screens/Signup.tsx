@@ -1,5 +1,5 @@
 // src/screens/SignUp.tsx
-import { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,18 +12,18 @@ import {
   Dimensions,
   KeyboardAvoidingView,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation';
+import { Colors } from '../theme';
 
-const PRIMARY = '#002855'; 
-const WHITE = '#FFFFFF';
+type Props = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
+
+const PRIMARY = '#002855'; // dark navy
+const WHITE = Colors?.white ?? '#FFFFFF';
 const MUTED = '#64748B';
 
-export default function SignUp() {
-  const navigation = useNavigation<any>();
-  const { t } = useTranslation();
-
-  // Animation for logo
+export default function SignUpScreen({ navigation }: Props) {
+  // animation refs
   const scale = useRef(new Animated.Value(0.8)).current;
   const translateY = useRef(new Animated.Value(-10)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -34,18 +34,14 @@ export default function SignUp() {
       Animated.timing(translateY, { toValue: 0, duration: 700, useNativeDriver: true }),
       Animated.timing(opacity, { toValue: 1, duration: 700, useNativeDriver: true }),
     ]).start();
-  }, []);
+  }, [scale, translateY, opacity]);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   function handleSignUp() {
-<<<<<<< HEAD
-    // ✅ Navigate to MainTabs after signup
-=======
-    // TODO: add validation/auth — for now navigate to Home
->>>>>>> 225eb76c2d8eb7594793fa4fac79b2a2029c4bd6
+    // replace with real signup logic later
     navigation.replace('MainTabs');
   }
 
@@ -59,12 +55,12 @@ export default function SignUp() {
             style={styles.logo}
           />
         </Animated.View>
-        <Text style={styles.topTitle}>{t ? t('create_account') : 'Create Account'}</Text>
-        <Text style={styles.topSubtitle}>
-          {t ? t('signup_subtitle') : 'Sign up to get started with 3PL Dynamics'}
-        </Text>
+
+        <Text style={styles.topTitle}>Create account</Text>
+        <Text style={styles.topSubtitle}>Join 3PL Dynamics to manage your logistics</Text>
       </View>
 
+      {/* White rounded card with form */}
       <KeyboardAvoidingView
         style={styles.formWrap}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -73,15 +69,16 @@ export default function SignUp() {
           <TextInput
             value={name}
             onChangeText={setName}
-            placeholder={t ? t('full_name') : 'Full Name'}
+            placeholder="Full name"
             placeholderTextColor="#9AA3B2"
             style={styles.input}
+            autoCapitalize="words"
           />
 
           <TextInput
             value={email}
             onChangeText={setEmail}
-            placeholder={t ? t('email') : 'Email'}
+            placeholder="Email"
             placeholderTextColor="#9AA3B2"
             keyboardType="email-address"
             autoCapitalize="none"
@@ -91,25 +88,19 @@ export default function SignUp() {
           <TextInput
             value={password}
             onChangeText={setPassword}
-            placeholder={t ? t('password') : 'Password'}
+            placeholder="Password"
             placeholderTextColor="#9AA3B2"
             secureTextEntry
             style={styles.input}
           />
 
-          <Pressable onPress={handleSignUp} style={styles.signUpBtn}>
-            <Text style={styles.signUpText}>{t ? t('create_account') : 'Create Account'}</Text>
+          <Pressable onPress={handleSignUp} style={styles.primaryBtn}>
+            <Text style={styles.primaryText}>Create account</Text>
           </Pressable>
 
-<<<<<<< HEAD
-          <Pressable onPress={() => navigation.navigate('SignIn')} style={styles.signInWrap}>
-            <Text style={styles.signInText}>
-              {t ? t('already_have_account', { link: t('sign_in_small') }) : 'Already have an account? Sign In'}
-=======
           <Pressable onPress={() => navigation.navigate('SignIn')} style={styles.createWrap}>
             <Text style={styles.createText}>
-              {t ? t('Already have an account', { link: t('sign_in_small') }) : 'Already have an account? Sign in'}
->>>>>>> 225eb76c2d8eb7594793fa4fac79b2a2029c4bd6
+              Already have an account? <Text style={styles.createTextBold}>Sign in</Text>
             </Text>
           </Pressable>
         </View>
@@ -118,11 +109,17 @@ export default function SignUp() {
   );
 }
 
+/* layout values */
 const { height: H, width: W } = Dimensions.get('window');
-const TOP_HEIGHT = Math.max(280, H * 0.42);
+const TOP_HEIGHT = Math.max(280, H * 0.42); // extended like SignIn
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: WHITE },
+  container: {
+    flex: 1,
+    backgroundColor: WHITE,
+  },
+
+  /* TOP AREA */
   topArea: {
     height: TOP_HEIGHT,
     backgroundColor: PRIMARY,
@@ -131,7 +128,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 30,
   },
-  logoWrap: { alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
+  logoWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
   logo: {
     width: Math.min(120, W * 0.28),
     height: Math.min(120, W * 0.28),
@@ -141,10 +142,26 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.3)',
     backgroundColor: 'rgba(255,255,255,0.08)',
   },
-  topTitle: { marginTop: 10, color: WHITE, fontSize: 22, fontWeight: '700', textAlign: 'center' },
-  topSubtitle: { color: 'rgba(255,255,255,0.9)', fontSize: 14, marginTop: 20, textAlign: 'center' },
+  topTitle: {
+    marginTop: 8,
+    color: WHITE,
+    fontSize: 22,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  topSubtitle: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 14,
+    marginTop: 4,
+    textAlign: 'center',
+  },
 
-  formWrap: { flex: 1, paddingHorizontal: 20, paddingTop: 12 },
+  /* FORM CARD */
+  formWrap: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+  },
   formCard: {
     backgroundColor: WHITE,
     borderRadius: 16,
@@ -152,12 +169,14 @@ const styles = StyleSheet.create({
     marginTop: -60,
     borderWidth: 1.5,
     borderColor: PRIMARY,
+    // shadow on all sides
     shadowColor: PRIMARY,
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 10,
+    shadowOpacity: 0.22,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 12,
   },
+
   input: {
     borderWidth: 1,
     borderColor: '#28456eff',
@@ -170,9 +189,31 @@ const styles = StyleSheet.create({
     color: '#020305ff',
   },
 
-  signUpBtn: { backgroundColor: PRIMARY, paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginTop: 4 },
-  signUpText: { color: WHITE, fontWeight: '700', fontSize: 16 },
+  primaryBtn: {
+    backgroundColor: PRIMARY,
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  primaryText: {
+    color: WHITE,
+    fontWeight: '700',
+    fontSize: 16,
+  },
 
-  signInWrap: { marginTop: 14, alignItems: 'center' },
-  signInText: { color: MUTED, fontSize: 14 },
+  createWrap: {
+    marginTop: 14,
+    alignItems: 'center',
+  },
+
+  /* ← IMPORTANT: these keys must exist to avoid the TS error you saw */
+  createText: {
+    color: MUTED,
+    fontSize: 14,
+  },
+  createTextBold: {
+    color: PRIMARY,
+    fontWeight: '700',
+  },
 });

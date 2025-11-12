@@ -316,11 +316,7 @@ export default function WelcomeScreen() {
   // Active button keeps clicked style
   const [activeButton, setActiveButton] = useState<'signin' | 'create' | null>(null);
 
-<<<<<<< HEAD
-  // capture layout for future use (we keep states but won't pass to dropdown yet)
-=======
   // Language button layout
->>>>>>> 225eb76c2d8eb7594793fa4fac79b2a2029c4bd6
   const [langBtnWidth, setLangBtnWidth] = useState<number | null>(null);
   const [langBtnRightOffset, setLangBtnRightOffset] = useState<number>(32);
 
@@ -382,16 +378,9 @@ export default function WelcomeScreen() {
         : PRIMARY
       : PRIMARY;
 
-<<<<<<< HEAD
-  // show language code in button
-  const langLabel = (i18n?.language || 'en').toUpperCase();
-
-  // capture layout to determine dropdown width & right offset (we store values for later)
-=======
   const langLabel = (i18n?.language || 'en').toUpperCase();
 
   // Capture language button layout
->>>>>>> 225eb76c2d8eb7594793fa4fac79b2a2029c4bd6
   function onLangBtnLayout(e: LayoutChangeEvent) {
     const { width, x } = e.nativeEvent.layout;
     setLangBtnWidth(Math.round(width));
@@ -417,13 +406,6 @@ export default function WelcomeScreen() {
         </Pressable>
       </View>
 
-<<<<<<< HEAD
-      {/* Language dropdown — for now pass only visible/onClose to avoid prop-type issues.
-          Later we will update the LanguageDropdown component to accept anchorWidth/anchorRightOffset
-          so the dropdown aligns with the button. */}
-      <LanguageDropdown visible={langVisible} onClose={() => setLangVisible(false)} />
-    </View>
-=======
       {/* Main content */}
       <View style={styles.screen}>
         {/* Animated logo */}
@@ -489,7 +471,6 @@ export default function WelcomeScreen() {
         />
       </View>
     </SafeAreaView>
->>>>>>> 225eb76c2d8eb7594793fa4fac79b2a2029c4bd6
   );
 }
 

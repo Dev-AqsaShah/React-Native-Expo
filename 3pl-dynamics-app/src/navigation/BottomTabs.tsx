@@ -21,7 +21,7 @@ export default function MainTabs(): JSX.Element {
     tabBarActiveTintColor: '#007AFF',
     tabBarInactiveTintColor: 'gray',
     tabBarStyle: {
-      backgroundColor: '#ffffff',
+      backgroundColor: '#4646f4ff',
       borderTopWidth: 0.5,
       borderTopColor: '#ddd',
       height: 60,
