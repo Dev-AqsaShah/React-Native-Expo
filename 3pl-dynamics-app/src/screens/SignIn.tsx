@@ -40,7 +40,8 @@ export default function SignIn() {
   const [password, setPassword] = useState('');
 
   function handleSignIn() {
-    navigation.replace('Home');
+    // ✅ Navigate to MainTabs instead of Home
+    navigation.replace('MainTabs');
   }
 
   function handleForgotPassword() {

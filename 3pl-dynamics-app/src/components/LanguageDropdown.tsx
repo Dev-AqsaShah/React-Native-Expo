@@ -1,183 +1,184 @@
 // src/components/LanguageDropdown.tsx
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
-  Modal,
-  Pressable,
   Text,
-  FlatList,
+  Pressable,
   StyleSheet,
   Platform,
-  Dimensions,
+  I18nManager,
+  Animated,
 } from 'react-native';
-import { setAppLanguage } from '../i18n';
-
-type LangItem = { code: string; label: string; native?: string; rtl?: boolean };
-
-const LANGS: LangItem[] = [
-  { code: 'en', label: 'English', native: 'English' },
-  { code: 'es', label: 'Spanish', native: 'Español' },
-  { code: 'fr', label: 'French', native: 'Français' },
-  { code: 'de', label: 'German', native: 'Deutsch' },
-  { code: 'zh', label: 'Chinese', native: '中文' },
-  { code: 'ar', label: 'Arabic', native: 'العربية', rtl: true },
-  { code: 'hi', label: 'Hindi', native: 'हिन्दी' },
-  { code: 'ur', label: 'Urdu', native: 'اردو', rtl: true },
-  { code: 'ru', label: 'Russian', native: 'Русский' },
-  { code: 'pt', label: 'Portuguese', native: 'Português' },
-];
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   visible: boolean;
   onClose: () => void;
-  anchorWidth?: number; // width of the triggering button (optional)
-  anchorRightOffset?: number; // distance from right edge (optional)
+  anchorWidth?: number; // optional: width to match the button
+  anchorRightOffset?: number; // optional: distance from right edge
 };
 
-export const LanguageDropdown: React.FC<Props> = ({
+const LANGS: { code: string; name: string; rtl?: boolean }[] = [
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Español' },
+  { code: 'fr', name: 'Français' },
+  { code: 'de', name: 'Deutsch' },
+  { code: 'zh', name: '中文' },
+  { code: 'ar', name: 'العربية', rtl: true },
+  { code: 'hi', name: 'हिन्दी' },
+  { code: 'ur', name: 'اردو', rtl: true },
+  { code: 'ru', name: 'Русский' },
+  { code: 'pt', name: 'Português' },
+];
+
+export default function LanguageDropdown({
   visible,
   onClose,
   anchorWidth = 160,
-  anchorRightOffset = 12,
-}) => {
-  async function pick(lang: LangItem) {
-    try {
-      await setAppLanguage(lang.code);
-    } catch (e) {
-      // ignore
-    } finally {
-      onClose();
+  anchorRightOffset = 32,
+}: Props) {
+  const { i18n, t } = useTranslation();
+
+  const selected = i18n?.language ?? 'en';
+
+  // small appear animation
+  const scale = useMemo(() => new Animated.Value(0.9), []);
+  if (visible) {
+    Animated.spring(scale, { toValue: 1, useNativeDriver: true, stiffness: 200, damping: 18 }).start();
+  } else {
+    Animated.timing(scale, { toValue: 0.9, duration: 120, useNativeDriver: true }).start();
+  }
+
+  if (!visible) return null;
+
+  function changeLang(code: string, rtl?: boolean) {
+    // change language
+    i18n.changeLanguage(code).catch(() => { /* ignore */ });
+
+    // if selecting an RTL language, force RTL and notify dev to restart
+    if (rtl) {
+      try {
+        if (!I18nManager.isRTL) {
+          I18nManager.forceRTL(true);
+        }
+      } catch (e) {
+        // ignore for now
+      }
+      // NOTE: forcing RTL requires app reload to take effect on layout.
+      // We'll close dropdown and user should restart the app manually while developing.
+    } else {
+      try {
+        if (I18nManager.isRTL) {
+          I18nManager.forceRTL(false);
+        }
+      } catch (e) {}
     }
-  }
 
-  // WEB: absolutely positioned panel
-  if (Platform.OS === 'web') {
-    if (!visible) return null;
-    return (
-      <View style={styles.webBackdrop}>
-        <View style={[styles.webDropdown, { width: anchorWidth, right: anchorRightOffset }]}>
-          <Text style={styles.sheetTitle}>Select language</Text>
-          <FlatList
-            data={LANGS}
-            keyExtractor={(i) => i.code}
-            renderItem={({ item }) => (
-              <Pressable style={styles.langRow} onPress={() => pick(item)}>
-                <View>
-                  <Text style={styles.langLabel}>{item.native ?? item.label}</Text>
-                  <Text style={styles.langSub}>{item.label}</Text>
-                </View>
-                <Text style={styles.langCode}>{item.code.toUpperCase()}</Text>
-              </Pressable>
-            )}
-            ItemSeparatorComponent={() => <View style={styles.sep} />}
-          />
-        </View>
-        <Pressable style={styles.webBackdropTouchable} onPress={onClose} />
-      </View>
-    );
+    onClose();
   }
-
-  // NATIVE: modal with sheet aligned from top-right
-  const screenW = Dimensions.get('window').width;
-  const rightPos = anchorRightOffset;
 
   return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose}>
-        <View style={[styles.nativeDropdown, { width: anchorWidth, right: rightPos }]}>
-          <Text style={styles.sheetTitle}>Select language</Text>
-          <FlatList
-            data={LANGS}
-            keyExtractor={(i) => i.code}
-            renderItem={({ item }) => (
-              <Pressable style={styles.langRow} onPress={() => pick(item)}>
-                <View>
-                  <Text style={styles.langLabel}>{item.native ?? item.label}</Text>
-                  <Text style={styles.langSub}>{item.label}</Text>
-                </View>
-                <Text style={styles.langCode}>{item.code.toUpperCase()}</Text>
-              </Pressable>
-            )}
-            ItemSeparatorComponent={() => <View style={styles.sep} />}
-          />
-        </View>
-      </Pressable>
-    </Modal>
-  );
-};
+    <View pointerEvents="box-none" style={styles.wrapper}>
+      {/* Backdrop: close when pressed */}
+      <Pressable style={styles.backdrop} onPress={onClose} />
 
-export default LanguageDropdown;
+      {/* Dropdown positioned by right offset and width */}
+      <Animated.View
+        style={[
+          styles.panel,
+          {
+            width: anchorWidth,
+            right: anchorRightOffset,
+            transform: [{ scale }],
+          },
+        ]}
+      >
+        {LANGS.map((l) => {
+          const isSelected = selected && selected.startsWith(l.code);
+          return (
+            <Pressable
+              key={l.code}
+              onPress={() => changeLang(l.code, l.rtl)}
+              style={({ pressed }) => [
+                styles.item,
+                isSelected ? styles.itemSelected : null,
+                pressed ? styles.itemPressed : null,
+              ]}
+            >
+              <Text style={[styles.itemText, isSelected ? styles.itemTextSelected : null]}>
+                {l.name}
+              </Text>
+            </Pressable>
+          );
+        })}
+
+        <Pressable onPress={onClose} style={styles.closeRow}>
+          <Text style={styles.closeText}>{t ? t('close') ?? 'Close' : 'Close'}</Text>
+        </Pressable>
+      </Animated.View>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
-  webBackdrop: {
+  wrapper: {
     position: 'absolute',
-    inset: 0,
+    top: 110, // enough to appear under the button at top-right; tweak if needed
+    left: 0,
+    right: 0,
+    bottom: 0,
     zIndex: 9999,
   },
-  webBackdropTouchable: {
-    position: 'absolute',
-    inset: 0,
-    backgroundColor: 'transparent',
-  },
-  webDropdown: {
-    position: 'absolute',
-    top: 44, // fine-tune if needed
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
-    borderWidth: 1,
-    borderColor: '#e6eef9',
-  },
-
   backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.18)',
-  },
-  nativeDropdown: {
     position: 'absolute',
-    top: 44,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    paddingVertical: 8,
-    paddingHorizontal: 8,
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  panel: {
+    position: 'absolute',
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 4,
     shadowColor: '#000',
     shadowOpacity: 0.12,
-    shadowRadius: 10,
+    shadowRadius: 8,
     shadowOffset: { width: 0, height: 6 },
-    borderWidth: 1,
-    borderColor: '#e6eef9',
+    elevation: 12,
+    alignSelf: 'flex-end',
+    marginRight: 16,
   },
-
-  sheetTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 6,
-    paddingHorizontal: 6,
-  },
-  langRow: {
+  item: {
     paddingVertical: 10,
-    paddingHorizontal: 6,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginVertical: 2,
+  },
+  itemPressed: {
+    opacity: 0.6,
+  },
+  itemSelected: {
+    backgroundColor: '#eaf2ff',
+  },
+  itemText: {
+    fontSize: 15,
+    color: '#0b254a',
+  },
+  itemTextSelected: {
+    fontWeight: '700',
+    color: '#002855',
+  },
+  closeRow: {
+    marginTop: 8,
+    paddingVertical: 8,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: '#eee',
     alignItems: 'center',
   },
-  langLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+  closeText: {
+    color: '#666',
+    fontSize: 13,
   },
-  langSub: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  langCode: {
-    fontSize: 12,
-    color: '#9ca3af',
-    fontWeight: '700',
-  },
-  sep: { height: 1, backgroundColor: '#eef2f6' },
 });
