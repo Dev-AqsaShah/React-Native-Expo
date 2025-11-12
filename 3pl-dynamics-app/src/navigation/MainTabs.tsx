@@ -15,7 +15,7 @@ const Tab: any = createBottomTabNavigator();
 export default function MainTabs(): JSX.Element {
   return (
     <Tab.Navigator
-      initialRouteName="Products"
+      initialRouteName="Profile"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#002855',

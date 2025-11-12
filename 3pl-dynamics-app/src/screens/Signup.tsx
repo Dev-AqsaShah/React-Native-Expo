@@ -41,7 +41,11 @@ export default function SignUp() {
   const [password, setPassword] = useState('');
 
   function handleSignUp() {
+<<<<<<< HEAD
     // ✅ Navigate to MainTabs after signup
+=======
+    // TODO: add validation/auth — for now navigate to Home
+>>>>>>> 225eb76c2d8eb7594793fa4fac79b2a2029c4bd6
     navigation.replace('MainTabs');
   }
 
@@ -97,9 +101,15 @@ export default function SignUp() {
             <Text style={styles.signUpText}>{t ? t('create_account') : 'Create Account'}</Text>
           </Pressable>
 
+<<<<<<< HEAD
           <Pressable onPress={() => navigation.navigate('SignIn')} style={styles.signInWrap}>
             <Text style={styles.signInText}>
               {t ? t('already_have_account', { link: t('sign_in_small') }) : 'Already have an account? Sign In'}
+=======
+          <Pressable onPress={() => navigation.navigate('SignIn')} style={styles.createWrap}>
+            <Text style={styles.createText}>
+              {t ? t('Already have an account', { link: t('sign_in_small') }) : 'Already have an account? Sign in'}
+>>>>>>> 225eb76c2d8eb7594793fa4fac79b2a2029c4bd6
             </Text>
           </Pressable>
         </View>
