@@ -1,283 +1,3 @@
-// src/screens/WelcomeScreen.tsx
-// import { useEffect, useRef, useState } from 'react';
-// import {
-//   View,
-//   Text,
-//   Image,
-//   Animated,
-//   Pressable,
-//   Platform,
-//   StyleSheet,
-//   Dimensions,
-//   LayoutChangeEvent,
-// } from 'react-native';
-// import { useNavigation } from '@react-navigation/native';
-// import { useTranslation } from 'react-i18next';
-// import LanguageDropdown from '../components/LanguageDropdown'; // make sure this file exists
-
-// const PRIMARY = '#0B3B8F';
-// const WHITE = '#FFFFFF';
-
-// export default function WelcomeScreen() {
-//   const navigation = useNavigation<any>();
-//   const { t, i18n } = useTranslation();
-
-//   const imageY = useRef(new Animated.Value(-30)).current;
-//   const imageScale = useRef(new Animated.Value(0.85)).current;
-//   const imageOpacity = useRef(new Animated.Value(0)).current;
-
-//   const [signInHover, setSignInHover] = useState(false);
-//   const [createHover, setCreateHover] = useState(false);
-//   const [langVisible, setLangVisible] = useState(false);
-
-//   // Active button state (keeps clicked style)
-//   const [activeButton, setActiveButton] = useState<'signin' | 'create' | null>(null);
-
-//   // anchor layout for dropdown
-//   const [langBtnWidth, setLangBtnWidth] = useState<number | null>(null);
-//   const [langBtnRightOffset, setLangBtnRightOffset] = useState<number>(32);
-
-//   useEffect(() => {
-//     Animated.sequence([
-//       Animated.delay(200),
-//       Animated.parallel([
-//         Animated.timing(imageY, {
-//           toValue: 0,
-//           duration: 700,
-//           useNativeDriver: true,
-//         }),
-//         Animated.timing(imageScale, {
-//           toValue: 1,
-//           duration: 700,
-//           useNativeDriver: true,
-//         }),
-//         Animated.timing(imageOpacity, {
-//           toValue: 1,
-//           duration: 700,
-//           useNativeDriver: true,
-//         }),
-//       ]),
-//     ]).start();
-//   }, [imageY, imageScale, imageOpacity]);
-
-//   const signInBg =
-//     activeButton === 'signin'
-//       ? WHITE
-//       : Platform.OS === 'web'
-//       ? signInHover
-//         ? WHITE
-//         : PRIMARY
-//       : PRIMARY;
-
-//   const signInTextColor =
-//     activeButton === 'signin'
-//       ? PRIMARY
-//       : Platform.OS === 'web'
-//       ? signInHover
-//         ? PRIMARY
-//         : WHITE
-//       : WHITE;
-
-//   const createBg =
-//     activeButton === 'create'
-//       ? PRIMARY
-//       : Platform.OS === 'web'
-//       ? createHover
-//         ? PRIMARY
-//         : WHITE
-//       : WHITE;
-
-//   const createTextColor =
-//     activeButton === 'create'
-//       ? WHITE
-//       : Platform.OS === 'web'
-//       ? createHover
-//         ? WHITE
-//         : PRIMARY
-//       : PRIMARY;
-
-//   // show language code in button (native label would be nicer if you add it)
-//   const langLabel = (i18n?.language || 'en').toUpperCase();
-
-//   // capture layout to determine dropdown width & right offset
-//   function onLangBtnLayout(e: LayoutChangeEvent) {
-//     const { width, x } = e.nativeEvent.layout;
-//     setLangBtnWidth(Math.round(width));
-//     const screenW = Dimensions.get('window').width;
-//     const rightOffset = Math.round(screenW - (x + width));
-//     setLangBtnRightOffset(rightOffset >= 0 ? rightOffset : 32);
-//   }
-
-//   return (
-//     <View style={styles.screen}>
-//       {/* Language button (top-right) */}
-//       <Pressable
-//         onPress={() => setLangVisible(true)}
-//         onLayout={onLangBtnLayout}
-//         style={[styles.langBtn, { zIndex: 9999, elevation: 9999 }]}
-//         accessibilityLabel="Open language selector"
-//       >
-//         <Text style={styles.langBtnText}>
-//           Choose language <Text style={styles.caret}>▼</Text>
-//         </Text>
-//       </Pressable>
-
-//       {/* Animated logo */}
-//       <Animated.View
-//         style={[
-//           styles.imageWrap,
-//           {
-//             transform: [{ translateY: imageY }, { scale: imageScale }],
-//             opacity: imageOpacity,
-//           },
-//         ]}
-//       >
-//         <Image
-//           source={require('../../assets/images/3pl dynamics-logo.jpeg')}
-//           style={styles.logo}
-//         />
-//       </Animated.View>
-
-//       {/* About text (i18n fallback included) */}
-//       <Text style={styles.about}>
-//         {t ? t('welcome_about') : 'Smart logistics for modern businesses.\nReal-time tracking, faster deliveries, and transparent operations.\nBuilt for scale — from local deliveries to national distribution.'}
-//       </Text>
-
-//       {/* Buttons */}
-//       <View style={styles.actions}>
-//         <Pressable
-//           onPress={() => {
-//             setActiveButton('signin');
-//             navigation.navigate('SignIn');
-//           }}
-//           onHoverIn={() => Platform.OS === 'web' && setSignInHover(true)}
-//           onHoverOut={() => Platform.OS === 'web' && setSignInHover(false)}
-//           style={[
-//             styles.signInBtn,
-//             { backgroundColor: signInBg, borderColor: PRIMARY },
-//           ]}
-//         >
-//           <Text style={[styles.signInText, { color: signInTextColor }]}>
-//             {t ? t('sign_in') : 'Sign In'}
-//           </Text>
-//         </Pressable>
-
-//         <Pressable
-//           onPress={() => {
-//             setActiveButton('create');
-//             navigation.navigate('SignUp');
-//           }}
-//           onHoverIn={() => Platform.OS === 'web' && setCreateHover(true)}
-//           onHoverOut={() => Platform.OS === 'web' && setCreateHover(false)}
-//           style={[
-//             styles.createBtn,
-//             { backgroundColor: createBg, borderColor: PRIMARY },
-//           ]}
-//         >
-//           <Text style={[styles.createText, { color: createTextColor }]}>
-//             {t ? t('create_account') : 'Create account'}
-//           </Text>
-//         </Pressable>
-//       </View>
-
-//       {/* Language modal / dropdown. Pass anchor width & right offset */}
-//       <LanguageDropdown
-//         visible={langVisible}
-//         onClose={() => setLangVisible(false)}
-//         anchorWidth={langBtnWidth ?? 160}
-//         anchorRightOffset={langBtnRightOffset}
-//       />
-//     </View>
-//   );
-// }
-
-// const { width: SCREEN_W } = Dimensions.get('window');
-
-// const styles = StyleSheet.create({
-//   screen: {
-//     flex: 1,
-//     backgroundColor: WHITE,
-//     alignItems: 'center',
-//     paddingHorizontal: 24,
-//     paddingTop: 40,
-//     paddingBottom: 28,
-//   },
-//   // language button styles
-//   langBtn: {
-//     position: 'absolute',
-//     top: 80,
-//     right: 32,
-//     backgroundColor: '#084b98ff', // dark blue
-//     paddingHorizontal: 12,
-//     paddingVertical: 8,
-//     borderRadius: 8,
-//   },
-//   langBtnText: {
-//     color: WHITE,
-//     fontWeight: '700',
-//     fontSize: 13,
-//   },
-//   caret: {
-//     fontSize: 12,
-//     marginLeft: 6,
-//     color: WHITE,
-//   },
-
-//   imageWrap: {
-//     marginTop: 150,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-//   logo: {
-//     width: Math.min(160, SCREEN_W * 0.4),
-//     height: Math.min(160, SCREEN_W * 0.4),
-//     resizeMode: 'cover',
-//     borderRadius: 9999, // circular
-//   },
-//   about: {
-//     marginTop: 20,
-//     textAlign: 'center',
-//     color: '#4B5563',
-//     fontSize: 20,
-//     lineHeight: 22,
-//     maxWidth: 680,
-//   },
-//   actions: {
-//     width: '100%',
-//     alignItems: 'center',
-//     paddingBottom: 8,
-//     marginTop: 140,
-//   },
-//   signInBtn: {
-//     width: '100%',
-//     paddingVertical: 16,
-//     borderRadius: 12,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     marginBottom: 20,
-//     elevation: 2,
-//     borderWidth: 1,
-//   },
-//   signInText: {
-//     fontSize: 18,
-//     fontWeight: '700',
-//   },
-//   createBtn: {
-//     width: '100%',
-//     paddingVertical: 30,
-//     borderRadius: 12,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     borderWidth: 1,
-//   },
-//   createText: {
-//     fontSize: 18,
-//     fontWeight: '700',
-//   },
-// });
-
-
-
 // src/screens/Welcome.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -288,150 +8,120 @@ import {
   Pressable,
   Platform,
   StyleSheet,
-  Dimensions,
-  LayoutChangeEvent,
   SafeAreaView,
+  StatusBar,
+  TouchableOpacity,
+  Easing,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import LanguageDropdown from '../components/LanguageDropdown'; // make sure this file exists
+import { Ionicons, Feather } from '@expo/vector-icons';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+// Define your navigator stack params
+type RootStackParamList = {
+  Welcome: undefined;
+  Settings: undefined;
+  SignIn: undefined;
+  SignUp: undefined;
+};
 
 const PRIMARY = '#0B3B8F';
 const WHITE = '#FFFFFF';
 
 export default function WelcomeScreen() {
-  const navigation = useNavigation<any>();
-  const { t, i18n } = useTranslation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  // Logo animation
-  const imageY = useRef(new Animated.Value(-30)).current;
-  const imageScale = useRef(new Animated.Value(0.85)).current;
-  const imageOpacity = useRef(new Animated.Value(0)).current;
+  // logo animations
+  const logoY = useRef(new Animated.Value(-40)).current;
+  const logoScale = useRef(new Animated.Value(0.9)).current;
+  const logoOpacity = useRef(new Animated.Value(0)).current;
 
-  // Hover states (web only)
+  // toast animations
+  const toastX = useRef(new Animated.Value(200)).current;
+  const [toastText, setToastText] = useState('');
+  const [toastVisible, setToastVisible] = useState(false);
+
+  // hover / layout
   const [signInHover, setSignInHover] = useState(false);
   const [createHover, setCreateHover] = useState(false);
-  const [langVisible, setLangVisible] = useState(false);
-
-  // Active button keeps clicked style
   const [activeButton, setActiveButton] = useState<'signin' | 'create' | null>(null);
 
-  // Language button layout
-  const [langBtnWidth, setLangBtnWidth] = useState<number | null>(null);
-  const [langBtnRightOffset, setLangBtnRightOffset] = useState<number>(32);
-
   useEffect(() => {
-    Animated.sequence([
-      Animated.delay(200),
-      Animated.parallel([
-        Animated.timing(imageY, {
-          toValue: 0,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-        Animated.timing(imageScale, {
-          toValue: 1,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-        Animated.timing(imageOpacity, {
-          toValue: 1,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-      ]),
+    Animated.parallel([
+      Animated.timing(logoY, { toValue: 0, duration: 700, useNativeDriver: true, easing: Easing.out(Easing.exp) }),
+      Animated.timing(logoScale, { toValue: 1, duration: 700, useNativeDriver: true }),
+      Animated.timing(logoOpacity, { toValue: 1, duration: 700, useNativeDriver: true }),
     ]).start();
-  }, [imageY, imageScale, imageOpacity]);
+  }, [logoY, logoScale, logoOpacity]);
 
-  // Dynamic button styles
+  // show toast helper
+  function showToast(message: string) {
+    setToastText(message);
+    setToastVisible(true);
+    toastX.setValue(220);
+    Animated.timing(toastX, { toValue: 0, duration: 360, useNativeDriver: true, easing: Easing.out(Easing.cubic) }).start();
+    setTimeout(() => {
+      Animated.timing(toastX, { toValue: 220, duration: 300, useNativeDriver: true }).start(() => {
+        setToastVisible(false);
+        setToastText('');
+      });
+    }, 2200);
+  }
+
+  // bottom tab press handler
+  function onFakeTabPress(label: string) {
+    showToast('Please login first');
+  }
+
   const signInBg =
-    activeButton === 'signin'
-      ? WHITE
-      : Platform.OS === 'web'
-      ? signInHover
-        ? WHITE
-        : PRIMARY
-      : PRIMARY;
+    activeButton === 'signin' ? WHITE : Platform.OS === 'web' ? (signInHover ? WHITE : PRIMARY) : PRIMARY;
   const signInTextColor =
-    activeButton === 'signin'
-      ? PRIMARY
-      : Platform.OS === 'web'
-      ? signInHover
-        ? PRIMARY
-        : WHITE
-      : WHITE;
+    activeButton === 'signin' ? PRIMARY : Platform.OS === 'web' ? (signInHover ? PRIMARY : WHITE) : WHITE;
 
   const createBg =
-    activeButton === 'create'
-      ? PRIMARY
-      : Platform.OS === 'web'
-      ? createHover
-        ? PRIMARY
-        : WHITE
-      : WHITE;
+    activeButton === 'create' ? PRIMARY : Platform.OS === 'web' ? (createHover ? PRIMARY : WHITE) : WHITE;
   const createTextColor =
-    activeButton === 'create'
-      ? WHITE
-      : Platform.OS === 'web'
-      ? createHover
-        ? WHITE
-        : PRIMARY
-      : PRIMARY;
-
-  const langLabel = (i18n?.language || 'en').toUpperCase();
-
-  // Capture language button layout
-  function onLangBtnLayout(e: LayoutChangeEvent) {
-    const { width, x } = e.nativeEvent.layout;
-    setLangBtnWidth(Math.round(width));
-    const screenW = Dimensions.get('window').width;
-    const rightOffset = Math.round(screenW - (x + width));
-    setLangBtnRightOffset(rightOffset >= 0 ? rightOffset : 32);
-  }
+    activeButton === 'create' ? WHITE : Platform.OS === 'web' ? (createHover ? WHITE : PRIMARY) : PRIMARY;
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Navbar / header */}
-      <View style={styles.navbar}>
-        <Text style={styles.logoText}>3PL Dynamics</Text>
+      <StatusBar barStyle="light-content" backgroundColor={PRIMARY} />
+
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.brandText}>3PL Dynamics</Text>
+
+        {/* Settings icon */}
         <Pressable
-          onPress={() => setLangVisible(true)}
-          onLayout={onLangBtnLayout}
-          style={styles.langBtn}
-          accessibilityLabel="Open language selector"
+          onPress={() => navigation.navigate('Settings')}
+          style={styles.settingsBtn}
         >
-          <Text style={styles.langBtnText}>
-            {langLabel} <Text style={styles.caret}>▼</Text>
-          </Text>
+          <Ionicons name="settings-outline" size={28} color={WHITE} />
         </Pressable>
       </View>
 
-      {/* Main content */}
-      <View style={styles.screen}>
-        {/* Animated logo */}
+      {/* Main */}
+      <View style={styles.main}>
+        {/* animated logo */}
         <Animated.View
           style={[
-            styles.imageWrap,
+            styles.logoWrap,
             {
-              transform: [{ translateY: imageY }, { scale: imageScale }],
-              opacity: imageOpacity,
+              transform: [{ translateY: logoY }, { scale: logoScale }],
+              opacity: logoOpacity,
             },
           ]}
         >
-          <Image
-            source={require('../../assets/images/3pl dynamics-logo.jpeg')}
-            style={styles.logo}
-          />
+          <View style={styles.logoCircle}>
+            <Image source={require('../../assets/images/3pl dynamics-logo.jpeg')} style={styles.logo} />
+          </View>
         </Animated.View>
 
-        {/* About text */}
-        <Text style={styles.about}>
-          {t
-            ? t('welcome_about')
-            : 'Smart logistics for modern businesses.\nReal-time tracking, faster deliveries, and transparent operations.\nBuilt for scale — from local deliveries to national distribution.'}
+        <Text style={styles.title}>Smart logistics for modern businesses</Text>
+        <Text style={styles.subtitle}>
+          Real-time tracking, faster deliveries, and transparent operations — built for scale.
         </Text>
 
-        {/* Buttons */}
         <View style={styles.actions}>
           <Pressable
             onPress={() => {
@@ -440,11 +130,9 @@ export default function WelcomeScreen() {
             }}
             onHoverIn={() => Platform.OS === 'web' && setSignInHover(true)}
             onHoverOut={() => Platform.OS === 'web' && setSignInHover(false)}
-            style={[styles.signInBtn, { backgroundColor: signInBg, borderColor: PRIMARY }]}
+            style={[styles.primaryBtn, { backgroundColor: signInBg }]}
           >
-            <Text style={[styles.signInText, { color: signInTextColor }]}>
-              {t ? t('sign_in') : 'Sign In'}
-            </Text>
+            <Text style={[styles.primaryBtnText, { color: signInTextColor }]}>Sign in</Text>
           </Pressable>
 
           <Pressable
@@ -454,120 +142,149 @@ export default function WelcomeScreen() {
             }}
             onHoverIn={() => Platform.OS === 'web' && setCreateHover(true)}
             onHoverOut={() => Platform.OS === 'web' && setCreateHover(false)}
-            style={[styles.createBtn, { backgroundColor: createBg, borderColor: PRIMARY }]}
+            style={[styles.ghostBtn, { backgroundColor: createBg }]}
           >
-            <Text style={[styles.createText, { color: createTextColor }]}>
-              {t ? t('create_account') : 'Create Account'}
-            </Text>
+            <Text style={[styles.ghostBtnText, { color: createTextColor }]}>Create account</Text>
           </Pressable>
         </View>
 
-        {/* Language dropdown */}
-        <LanguageDropdown
-          visible={langVisible}
-          onClose={() => setLangVisible(false)}
-          anchorWidth={langBtnWidth ?? 160}
-          anchorRightOffset={langBtnRightOffset}
-        />
+        <View style={styles.infoRow}>
+          <Feather name="shield" size={16} color="#6B7280" />
+          <Text style={styles.infoText}>Trusted fulfillment • WMS-ready • Multimodal delivery</Text>
+        </View>
       </View>
+
+      {/* Bottom tabs */}
+      <View style={styles.fakeTabs}>
+        <TouchableOpacity style={styles.tabItem} activeOpacity={0.8} onPress={() => onFakeTabPress('Profile')}>
+          <Ionicons name="person-outline" size={22} color={WHITE} />
+          <Text style={styles.tabLabel}>Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tabItem} activeOpacity={0.8} onPress={() => onFakeTabPress('Products')}>
+          <Ionicons name="pricetags-outline" size={22} color={WHITE} />
+          <Text style={styles.tabLabel}>Products</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tabItem} activeOpacity={0.8} onPress={() => onFakeTabPress('Orders')}>
+          <Ionicons name="cart-outline" size={22} color={WHITE} />
+          <Text style={styles.tabLabel}>Orders</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tabItem} activeOpacity={0.8} onPress={() => onFakeTabPress('About')}>
+          <Ionicons name="information-circle-outline" size={22} color={WHITE} />
+          <Text style={styles.tabLabel}>About</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tabItem} activeOpacity={0.8} onPress={() => onFakeTabPress('Contact')}>
+          <Ionicons name="call-outline" size={22} color={WHITE} />
+          <Text style={styles.tabLabel}>Contact</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Toast */}
+      {toastVisible && (
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.toast, { transform: [{ translateX: toastX }] }]}
+        >
+          <Text style={styles.toastText}>{toastText}</Text>
+        </Animated.View>
+      )}
     </SafeAreaView>
   );
 }
 
-const { width: SCREEN_W } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: WHITE,
-  },
-  navbar: {
+  safeArea: { flex: 1, backgroundColor: WHITE },
+  header: {
     width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: Platform.OS === 'ios' ? 40 : 20,
+    backgroundColor: PRIMARY,
+    paddingTop: Platform.OS === 'ios' ? 44 : 20,
     paddingBottom: 12,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#ccc',
-    backgroundColor: WHITE,
-    zIndex: 999,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  logoText: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: PRIMARY,
-  },
-  langBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    backgroundColor: '#E6EAF0',
-  },
-  langBtnText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: PRIMARY,
-  },
-  caret: {
-    fontSize: 12,
-    marginLeft: 4,
+  brandText: { color: WHITE, fontSize: 20, fontWeight: '800' },
+  settingsBtn: {
+    padding: 6,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
-  screen: {
-    flex: 1,
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 24,
-  },
-  imageWrap: {
-    marginTop: 40,
+  main: { flex: 1, alignItems: 'center', paddingHorizontal: 28, paddingTop: 20 },
+  logoWrap: { marginTop: 6, marginBottom: 8 },
+  logoCircle: {
+    width: 140,
+    height: 140,
+    borderRadius: 999,
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
   },
-  logo: {
-    width: Math.min(160, SCREEN_W * 0.4),
-    height: Math.min(160, SCREEN_W * 0.4),
-    resizeMode: 'cover',
-    borderRadius: 9999,
-  },
-  about: {
-    marginTop: 20,
-    textAlign: 'center',
-    color: '#4B5563',
-    fontSize: 16,
-    lineHeight: 22,
-    maxWidth: 680,
-  },
-  actions: {
+  logo: { width: 120, height: 120, borderRadius: 999, resizeMode: 'cover' },
+
+  title: { marginTop: 14, textAlign: 'center', fontSize: 20, fontWeight: '800', color: '#0F172A' },
+  subtitle: { marginTop: 8, textAlign: 'center', color: '#475569', fontSize: 14, lineHeight: 20, maxWidth: 560 },
+
+  actions: { width: '100%', marginTop: 26 },
+  primaryBtn: {
     width: '100%',
-    marginTop: 60,
-    alignItems: 'center',
-  },
-  signInBtn: {
-    width: '100%',
-    paddingVertical: 16,
+    paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
     borderWidth: 1,
+    borderColor: PRIMARY,
   },
-  signInText: {
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  createBtn: {
+  primaryBtnText: { fontSize: 16, fontWeight: '800' },
+
+  ghostBtn: {
     width: '100%',
-    paddingVertical: 16,
+    paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+    borderColor: PRIMARY,
+    backgroundColor: WHITE,
   },
-  createText: {
-    fontSize: 18,
-    fontWeight: '700',
+  ghostBtnText: { fontSize: 16, fontWeight: '800' },
+
+  infoRow: { marginTop: 18, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  infoText: { color: '#6B7280', marginLeft: 8 },
+
+  fakeTabs: {
+    width: '100%',
+    backgroundColor: PRIMARY,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingBottom: Platform.OS === 'ios' ? 28 : 10,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
   },
+  tabItem: { alignItems: 'center', justifyContent: 'center' },
+  tabLabel: { color: WHITE, fontSize: 11, marginTop: 4 },
+
+  toast: {
+    position: 'absolute',
+    right: 12,
+    bottom: Platform.OS === 'ios' ? 90 : 78,
+    backgroundColor: '#EF4444',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 6 },
+  },
+  toastText: { color: WHITE, fontWeight: '800' },
 });

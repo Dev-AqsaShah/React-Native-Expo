@@ -40,7 +40,9 @@ export default function SignIn() {
   const [password, setPassword] = useState('');
 
   function handleSignIn() {
-    navigation.replace('MainTabs');
+    // Navigate to the MainTabs navigator and open the "Profile" tab.
+    // If your tab name is different, change 'Profile' to the correct route name.
+    navigation.replace('MainTabs', { screen: 'Profile' });
   }
 
   function handleForgotPassword() {

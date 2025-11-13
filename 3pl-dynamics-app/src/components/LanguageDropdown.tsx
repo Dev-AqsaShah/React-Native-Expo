@@ -1,5 +1,5 @@
 // src/components/LanguageDropdown.tsx
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Animated,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { setAppLanguage } from '../i18n'; // ensure path matches your project
 
 type Props = {
   visible: boolean;
@@ -39,62 +40,90 @@ export default function LanguageDropdown({
 }: Props) {
   const { i18n, t } = useTranslation();
 
-  const selected = i18n?.language ?? 'en';
+  // derive selected primary code (handle en-US etc.)
+  const selected = useMemo(() => (i18n?.language ? i18n.language.split(/[-_]/)[0] : 'en'), [i18n?.language]);
 
-  // small appear animation
-  const scale = useMemo(() => new Animated.Value(0.9), []);
-  if (visible) {
-    Animated.spring(scale, { toValue: 1, useNativeDriver: true, stiffness: 200, damping: 18 }).start();
-  } else {
-    Animated.timing(scale, { toValue: 0.9, duration: 120, useNativeDriver: true }).start();
-  }
+  // animation value (stable across renders)
+  const scale = useRef(new Animated.Value(0.9)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  // animate when `visible` changes
+  useEffect(() => {
+    if (visible) {
+      opacity.setValue(0);
+      scale.setValue(0.95);
+      Animated.parallel([
+        Animated.timing(opacity, { toValue: 1, duration: 180, useNativeDriver: true }),
+        Animated.spring(scale, { toValue: 1, useNativeDriver: true, stiffness: 200, damping: 18 }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(opacity, { toValue: 0, duration: 120, useNativeDriver: true }),
+        Animated.timing(scale, { toValue: 0.95, duration: 120, useNativeDriver: true }),
+      ]).start();
+    }
+  }, [visible, opacity, scale]);
+
+  // central language change handler (uses your i18n helper)
+  const changeLang = useCallback(
+    async (code: string, rtl?: boolean) => {
+      try {
+        // Use the central helper so language is persisted and RTL is handled consistently
+        await setAppLanguage(code);
+      } catch {
+        // fallback to direct change if helper fails
+        try {
+          await i18n.changeLanguage(code);
+        } catch {
+          /* ignore */
+        }
+      }
+
+      // On web, I18nManager may not behave the same — don't force reload here.
+      if (rtl && Platform.OS !== 'web') {
+        try {
+          if (!I18nManager.isRTL) {
+            I18nManager.forceRTL(true);
+          }
+        } catch {
+          // no-op
+        }
+      } else if (Platform.OS !== 'web') {
+        try {
+          if (I18nManager.isRTL) {
+            I18nManager.forceRTL(false);
+          }
+        } catch {
+          // no-op
+        }
+      }
+
+      onClose();
+    },
+    [i18n, onClose]
+  );
 
   if (!visible) return null;
 
-  function changeLang(code: string, rtl?: boolean) {
-    // change language
-    i18n.changeLanguage(code).catch(() => { /* ignore */ });
-
-    // if selecting an RTL language, force RTL and notify dev to restart
-    if (rtl) {
-      try {
-        if (!I18nManager.isRTL) {
-          I18nManager.forceRTL(true);
-        }
-      } catch (e) {
-        // ignore for now
-      }
-      // NOTE: forcing RTL requires app reload to take effect on layout.
-      // We'll close dropdown and user should restart the app manually while developing.
-    } else {
-      try {
-        if (I18nManager.isRTL) {
-          I18nManager.forceRTL(false);
-        }
-      } catch (e) {}
-    }
-
-    onClose();
-  }
-
   return (
     <View pointerEvents="box-none" style={styles.wrapper}>
-      {/* Backdrop: close when pressed */}
+      {/* Backdrop */}
       <Pressable style={styles.backdrop} onPress={onClose} />
 
-      {/* Dropdown positioned by right offset and width */}
       <Animated.View
+        pointerEvents="box-none"
         style={[
           styles.panel,
           {
             width: anchorWidth,
             right: anchorRightOffset,
+            opacity: opacity,
             transform: [{ scale }],
           },
         ]}
       >
         {LANGS.map((l) => {
-          const isSelected = selected && selected.startsWith(l.code);
+          const isSelected = selected === l.code;
           return (
             <Pressable
               key={l.code}
@@ -113,7 +142,7 @@ export default function LanguageDropdown({
         })}
 
         <Pressable onPress={onClose} style={styles.closeRow}>
-          <Text style={styles.closeText}>{t ? t('close') ?? 'Close' : 'Close'}</Text>
+          <Text style={styles.closeText}>{t('common.close') ?? 'Close'}</Text>
         </Pressable>
       </Animated.View>
     </View>
@@ -123,7 +152,7 @@ export default function LanguageDropdown({
 const styles = StyleSheet.create({
   wrapper: {
     position: 'absolute',
-    top: 110, // enough to appear under the button at top-right; tweak if needed
+    top: 110, // tweak if your header height changes
     left: 0,
     right: 0,
     bottom: 0,

@@ -11,19 +11,21 @@ import {
   StyleSheet,
   Dimensions,
   KeyboardAvoidingView,
+  ScrollView,
+  Alert,
 } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation';
+import * as ImagePicker from 'expo-image-picker';
+import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../theme';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
-
-const PRIMARY = '#002855'; // dark navy
-const WHITE = Colors?.white ?? '#FFFFFF';
+const PRIMARY = '#002855';
+const WHITE = Colors.white;
 const MUTED = '#64748B';
 
-export default function SignUpScreen({ navigation }: Props) {
-  // animation refs
+export default function SignUpScreen() {
+  const navigation = useNavigation<any>();
+
+  // Animation refs
   const scale = useRef(new Animated.Value(0.8)).current;
   const translateY = useRef(new Animated.Value(-10)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -34,186 +36,138 @@ export default function SignUpScreen({ navigation }: Props) {
       Animated.timing(translateY, { toValue: 0, duration: 700, useNativeDriver: true }),
       Animated.timing(opacity, { toValue: 1, duration: 700, useNativeDriver: true }),
     ]).start();
-  }, [scale, translateY, opacity]);
+  }, []);
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // Avatar state
+  const [avatar, setAvatar] = useState<any>(null);
 
-  function handleSignUp() {
-    // replace with real signup logic later
-    navigation.replace('MainTabs');
-  }
+  const pickImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission required', 'Please allow access to your gallery.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (!result.canceled && result.assets[0]) {
+      setAvatar(result.assets[0].uri);
+    }
+  };
+
+ function handleSignUp() {
+  // Navigate to MainTabs and select Profile tab
+  navigation.reset({
+    index: 0,
+    routes: [
+      {
+        name: 'MainTabs',
+        params: {
+          screen: 'Profile', // make sure your Tab.Screen name is 'Profile'
+        },
+      },
+    ],
+  });
+}
+
+
+  const { height: H } = Dimensions.get('window');
 
   return (
-    <View style={styles.container}>
-      {/* Top blue area */}
-      <View style={styles.topArea}>
-        <Animated.View style={[styles.logoWrap, { transform: [{ translateY }, { scale }], opacity }]}>
-          <Image
-            source={require('../../assets/images/3pl dynamics-logo.jpeg')}
-            style={styles.logo}
-          />
-        </Animated.View>
-
-        <Text style={styles.topTitle}>Create account</Text>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Top Area */}
+      <Animated.View style={[styles.topArea, { transform: [{ translateY }, { scale }], opacity }]}>
+        <Pressable onPress={pickImage} style={styles.avatarWrap}>
+          {avatar ? (
+            <Image source={{ uri: avatar }} style={styles.avatar} />
+          ) : (
+            <View style={[styles.avatar, styles.avatarPlaceholder]}>
+              <Text style={styles.avatarText}>Upload Photo</Text>
+            </View>
+          )}
+        </Pressable>
+        <Text style={styles.topTitle}>Create Account</Text>
         <Text style={styles.topSubtitle}>Join 3PL Dynamics to manage your logistics</Text>
-      </View>
+      </Animated.View>
 
-      {/* White rounded card with form */}
-      <KeyboardAvoidingView
-        style={styles.formWrap}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+      {/* Form Card */}
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.formWrap}>
         <View style={styles.formCard}>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Full name"
-            placeholderTextColor="#9AA3B2"
-            style={styles.input}
-            autoCapitalize="words"
-          />
-
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Email"
-            placeholderTextColor="#9AA3B2"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            style={styles.input}
-          />
-
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Password"
-            placeholderTextColor="#9AA3B2"
-            secureTextEntry
-            style={styles.input}
-          />
+          {/* Single line inputs */}
+          <TextInput placeholder="Full Name" style={styles.input} />
+          <TextInput placeholder="Username" style={styles.input} />
+          <TextInput placeholder="Email" style={styles.input} />
+          <TextInput placeholder="Phone" style={styles.input} />
+          <TextInput placeholder="Address" style={styles.input} />
+          <TextInput placeholder="Country" style={styles.input} />
+          <TextInput placeholder="Role" style={styles.input} />
+          <TextInput placeholder="Company" style={styles.input} />
 
           <Pressable onPress={handleSignUp} style={styles.primaryBtn}>
-            <Text style={styles.primaryText}>Create account</Text>
-          </Pressable>
-
-          <Pressable onPress={() => navigation.navigate('SignIn')} style={styles.createWrap}>
-            <Text style={styles.createText}>
-              Already have an account? <Text style={styles.createTextBold}>Sign in</Text>
-            </Text>
+            <Text style={styles.primaryText}>Create Account</Text>
           </Pressable>
         </View>
       </KeyboardAvoidingView>
-    </View>
+    </ScrollView>
   );
 }
 
-/* layout values */
-const { height: H, width: W } = Dimensions.get('window');
-const TOP_HEIGHT = Math.max(280, H * 0.42); // extended like SignIn
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: WHITE,
-  },
-
-  /* TOP AREA */
+  container: { flex: 1, backgroundColor: WHITE },
   topArea: {
-    height: TOP_HEIGHT,
+    height: 280,
     backgroundColor: PRIMARY,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    paddingHorizontal: 20,
-    paddingBottom: 30,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
   },
-  logoWrap: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  logo: {
-    width: Math.min(120, W * 0.28),
-    height: Math.min(120, W * 0.28),
+  avatarWrap: { alignItems: 'center', marginBottom: 12 },
+  avatar: {
+    width: 90,
+    height: 90,
     borderRadius: 9999,
-    resizeMode: 'cover',
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.3)',
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderColor: WHITE,
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
-  topTitle: {
-    marginTop: 8,
-    color: WHITE,
-    fontSize: 22,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  topSubtitle: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: 14,
-    marginTop: 4,
-    textAlign: 'center',
-  },
-
-  /* FORM CARD */
-  formWrap: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-  },
+  avatarPlaceholder: { justifyContent: 'center', alignItems: 'center' },
+  avatarText: { color: WHITE, fontSize: 12 },
+  topTitle: { color: WHITE, fontSize: 22, fontWeight: '700', textAlign: 'center' },
+  topSubtitle: { color: 'rgba(255,255,255,0.9)', fontSize: 14, marginTop: 4, textAlign: 'center' },
+  formWrap: { flex: 1, paddingHorizontal: 20, paddingTop: 20 },
   formCard: {
-    backgroundColor: WHITE,
+    backgroundColor: '#f0f4ff',
     borderRadius: 16,
     padding: 20,
-    marginTop: -60,
-    borderWidth: 1.5,
-    borderColor: PRIMARY,
-    // shadow on all sides
     shadowColor: PRIMARY,
-    shadowOpacity: 0.22,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 12,
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 8,
+    marginBottom: 20,
   },
-
   input: {
     borderWidth: 1,
     borderColor: '#28456eff',
-    backgroundColor: '#eaf0fbff',
-    paddingVertical: 14,
+    backgroundColor: WHITE,
+    paddingVertical: 12,
     paddingHorizontal: 12,
     borderRadius: 10,
-    marginBottom: 12,
     fontSize: 15,
-    color: '#020305ff',
+    color: '#020305',
+    marginBottom: 12,
   },
-
   primaryBtn: {
     backgroundColor: PRIMARY,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: 10,
   },
-  primaryText: {
-    color: WHITE,
-    fontWeight: '700',
-    fontSize: 16,
-  },
-
-  createWrap: {
-    marginTop: 14,
-    alignItems: 'center',
-  },
-
-  /* ← IMPORTANT: these keys must exist to avoid the TS error you saw */
-  createText: {
-    color: MUTED,
-    fontSize: 14,
-  },
-  createTextBold: {
-    color: PRIMARY,
-    fontWeight: '700',
-  },
+  primaryText: { color: WHITE, fontWeight: '700', fontSize: 16 },
 });
