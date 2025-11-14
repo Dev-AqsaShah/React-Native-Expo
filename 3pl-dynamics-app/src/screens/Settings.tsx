@@ -8,12 +8,14 @@ import {
   ScrollView,
   Animated,
   I18nManager,
+  Alert,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppStack';
+import { setAppLanguage } from '../i18n'; // import setAppLanguage
 
 type SettingsScreenProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 
@@ -45,28 +47,32 @@ export default function SettingsScreen() {
     damping: 18,
   }).start();
 
-  // Change language
+  // Change language with AsyncStorage + RTL
   const changeLanguage = async (code: string, rtl?: boolean) => {
-    await i18n.changeLanguage(code); // Update i18next language
-    setSelectedLang(code);           // Trigger re-render for all text
-    setDropdownVisible(false);
+    try {
+      await setAppLanguage(code); // this updates i18n + AsyncStorage + RTL handling
+      setSelectedLang(code);       // update state to re-render UI
 
-    // Handle RTL layout
-    if (rtl && !I18nManager.isRTL) {
-      I18nManager.forceRTL(true);
-    } else if (!rtl && I18nManager.isRTL) {
-      I18nManager.forceRTL(false);
+      // Optional alert if RTL layout changed
+      const isRTL = rtl ?? false;
+      if ((isRTL && !I18nManager.isRTL) || (!isRTL && I18nManager.isRTL)) {
+        Alert.alert(
+          t('common.language_changed_title') || 'Language Changed',
+          t('common.language_changed_restart') || 'Restart app to apply layout changes.',
+          [{ text: t('common.ok') || 'OK' }]
+        );
+      }
+    } catch (err) {
+      console.warn('Language change failed', err);
+    } finally {
+      setDropdownVisible(false);
     }
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Header */}
       <View style={styles.header}>
-        <Pressable
-          style={styles.backBtn}
-          onPress={() => navigation.navigate('Welcome')}
-        >
+        <Pressable style={styles.backBtn} onPress={() => navigation.navigate('Welcome')}>
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </Pressable>
         <Text style={styles.headerTitle}>{t('settings') || 'Settings'}</Text>
@@ -93,7 +99,7 @@ export default function SettingsScreen() {
 
         {dropdownVisible && (
           <Animated.View style={[styles.dropdown, { transform: [{ scale: scaleAnim }] }]}>
-            {LANGS.map((lang) => (
+            {LANGS.map(lang => (
               <Pressable
                 key={lang.code}
                 style={[

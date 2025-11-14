@@ -1,125 +1,78 @@
 {
-  "welcome_title": "3PL Dynamics",
-  "welcome_about": "Smart logistics for modern businesses. Real-time tracking, faster deliveries, and transparent operations. Built for scale — from local deliveries to national distribution.",
+  "welcome": "Welcome",
+  "settings": "Settings",
+  "language": "Language",
+  "language_changed_title": "Language Changed",
+  "language_changed_restart": "Restart app to apply layout changes.",
+  "ok": "OK",
 
   "sign_in": "Sign In",
-  "create_account": "Create Account",
-  "welcome_back": "Welcome Back",
   "sign_in_subtitle": "Sign in to continue to 3PL Dynamics",
+  "welcome_back": "Welcome Back",
   "email": "Email",
   "password": "Password",
   "forgot_password": "Forgot password?",
   "dont_have_account": "Don't have an account? {{link}}",
   "create_account_small": "Create Account",
-
-  "dashboard": "Dashboard",
-  "welcome_dashboard": "Welcome to 3PL Dynamics",
-  "hello": "Hello,",
-  "overview": "Overview",
-  "orders": "Orders",
-  "deliveries": "Deliveries",
-  "dashboard_note": "Track shipments, review performance, and manage routes — all in one place.",
-  "go_to_dashboard": "Go to Dashboard",
-  "sign_out": "Sign out",
-
+  "create_account": "Create Account",
   "full_name": "Full Name",
-  "create_account_title": "Create Account",
-  "join_subtitle": "Join 3PL Dynamics to manage your logistics",
+  "username": "Username",
+  "phone": "Phone",
+  "address": "Address",
+  "country": "Country",
+  "role": "Role",
+  "company": "Company",
+  "join_text": "Join 3PL Dynamics to manage your logistics",
 
-  "settings": "Settings",
-  "language": "Language",
-  "select_language": "Select Language",
-  "language_changed": "Language changed",
-  "language_changed_restart": "Language changed. Please restart the app to apply layout direction.",
-
-  "close": "Close",
+  "smart_logistics": "Smart logistics for modern businesses",
+  "subtitle_text": "Real-time tracking, faster deliveries, and transparent operations — built for scale.",
+  "trusted_info": "Trusted fulfillment • WMS-ready • Multimodal delivery",
 
   "profile": "Profile",
+  "products": "Products",
+  "orders": "Orders",
+  "about": "About",
+  "contact": "Contact",
+
+  "edit_profile": "Edit profile",
+  "sign_out": "Sign Out",
+  "avatar_upload": "Upload Photo",
+
   "profile_name": "Name",
+  "profile_username": "Username",
   "profile_email": "Email",
-  "profile_phone": "Phone",
-  "profile_address": "Address",
   "profile_role": "Role",
   "profile_company": "Company",
-  "profile_edit": "Edit Profile",
-  "profile_upload_photo": "Upload Photo",
-  "profile_placeholder_avatar": "Tap to upload a photo",
+  "profile_phone": "Phone",
+  "profile_address": "Address",
+  "profile_city": "City",
+  "profile_country": "Country",
 
-  "products": "Products",
-  "product_details": "Product Details",
-  "product_quantity": "Quantity",
-  "product_description": "Description",
-  "view_details": "View Details",
-  "add_to_cart": "Add to Cart",
-  "sku": "SKU",
+  "settings_select_language": "Select your preferred language",
 
-  "orders_title": "Orders",
-  "order_number": "Order Number",
-  "order_status": "Order Status",
-  "status_in_transit": "In Transit",
-  "status_delivered": "Delivered",
-  "status_pending": "Pending",
-  "status_cancelled": "Cancelled",
-  "order_details": "Order Details",
-  "track_order": "Track Order",
-  "placed_on": "Placed on",
+  "product_list_title": "Our Products",
+  "product_name_label": "Product Name",
+  "product_price_label": "Price",
+  "product_description_label": "Description",
+  "product_add_to_cart": "Add to Cart",
+  "product_out_of_stock": "Out of Stock",
 
-  "about_title": "About Us",
-  "about_paragraph": "We provide modern logistics solutions: real-time tracking, route optimization, and transparent operations to help businesses grow.",
+  "order_list_title": "Your Orders",
+  "order_id_label": "Order ID",
+  "order_status_label": "Status",
+  "order_date_label": "Date",
+  "order_total_label": "Total",
+  "order_view_details": "View Details",
 
-  "contact_title": "Contact",
-  "contact_support": "Support: support@3pldynamics.com",
-  "contact_phone": "Phone: +1 555 123 456",
-  "email_support": "Email Support",
-  "call_support": "Call Support",
+  "about_heading": "About 3PL Dynamics",
+  "about_text": "We provide smart logistics solutions for modern businesses, ensuring fast deliveries and transparent operations.",
 
-  "buttons": {
-    "save_changes": "Save Changes",
-    "cancel": "Cancel",
-    "search": "Search",
-    "ok": "OK",
-    "close": "Close"
-  },
+  "contact_heading": "Contact Us",
+  "contact_address_label": "Address",
+  "contact_email_label": "Email",
+  "contact_phone_label": "Phone",
+  "contact_message_placeholder": "Write your message...",
+  "contact_send_button": "Send Message",
 
-  "placeholders": {
-    "search_products": "Search by product or SKU...",
-    "enter_email": "Enter email",
-    "enter_password": "Enter password",
-    "enter_phone": "Enter phone number",
-    "enter_address": "Enter address"
-  },
-
-  "validation": {
-    "required": "This field is required",
-    "invalid_email": "Invalid email address",
-    "min_password": "Password must be at least 6 characters"
-  },
-
-  "ui": {
-    "loading": "Loading",
-    "no_results": "No results found",
-    "view_more": "View More",
-    "edit": "Edit",
-    "delete": "Delete"
-  },
-
-  "auth": {
-    "already_have_account": "Already have an account? {{link}}",
-    "username": "Username",
-    "phone": "Phone",
-    "address": "Address"
-  },
-
-  "tabs": {
-    "profile": "Profile",
-    "products": "Products",
-    "orders": "Orders",
-    "about": "About",
-    "contact": "Contact"
-  },
-
-  "notifications": {
-    "no_notifications": "No notifications",
-    "view_notifications": "View Notifications"
-  }
+  "toast_login_required": "Please login first"
 }

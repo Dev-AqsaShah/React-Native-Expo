@@ -1,22 +1,30 @@
 // src/navigation/MainTabs.tsx
-import React, { JSX } from 'react';
+import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
 
-// screens (make sure these exist)
+// screens
 import Profile from '../screens/Profile';
 import Products from '../screens/Products';
 import Orders from '../screens/Order';
 import About from '../screens/About';
 import ContactUs from '../screens/Contact';
 
-const Tab: any = createBottomTabNavigator();
+// Define type for tabs
+export type MainTabParamList = {
+  Profile: undefined;
+  Products: undefined;
+  Orders: undefined;
+  About: undefined;
+  ContactUs: undefined;
+};
 
-export default function MainTabs(): JSX.Element {
-  // common tab bar style
-  const TAB_BAR_BG = '#0a2b6a'; // dark blue (change if you want a different shade)
-  const ICON_COLOR = '#FFFFFF'; // white for icons/labels
+const Tab = createBottomTabNavigator<MainTabParamList>();
+
+export default function MainTabs() {
+  const TAB_BAR_BG = '#0a2b6a'; // dark blue
+  const ICON_COLOR = '#FFFFFF'; // white
 
   const navigatorOptions = {
     headerShown: false,
@@ -33,7 +41,6 @@ export default function MainTabs(): JSX.Element {
       shadowOpacity: 0.25,
       shadowOffset: { width: 0, height: -2 },
       shadowRadius: 6,
-      // ensure it is not transparent or behind something
       position: 'absolute',
       left: 0,
       right: 0,
@@ -45,19 +52,17 @@ export default function MainTabs(): JSX.Element {
     },
   };
 
-  // helper to render icons (we explicitly set color to ensure it's white)
   const renderIcon =
     (name: React.ComponentProps<typeof Ionicons>['name']) =>
-    ({ focused, size }: { focused: boolean; size: number }) => {
-      // explicitly set white color (ignores any unexpected tinting)
-      return <Ionicons name={name} size={size} color={ICON_COLOR} />;
-    };
+    ({ focused, size }: { focused: boolean; size: number }) => (
+      <Ionicons name={name} size={size} color={ICON_COLOR} />
+    );
 
   return (
-    <Tab.Navigator initialRouteName="Products" screenOptions={navigatorOptions}>
+    <Tab.Navigator initialRouteName="Profile" screenOptions={navigatorOptions}>
       <Tab.Screen
         name="Profile"
-        component={Profile as any}
+        component={Profile}
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: renderIcon('person-outline'),
@@ -65,7 +70,7 @@ export default function MainTabs(): JSX.Element {
       />
       <Tab.Screen
         name="Products"
-        component={Products as any}
+        component={Products}
         options={{
           tabBarLabel: 'Products',
           tabBarIcon: renderIcon('pricetags-outline'),
@@ -73,7 +78,7 @@ export default function MainTabs(): JSX.Element {
       />
       <Tab.Screen
         name="Orders"
-        component={Orders as any}
+        component={Orders}
         options={{
           tabBarLabel: 'Orders',
           tabBarIcon: renderIcon('cart-outline'),
@@ -81,7 +86,7 @@ export default function MainTabs(): JSX.Element {
       />
       <Tab.Screen
         name="About"
-        component={About as any}
+        component={About}
         options={{
           tabBarLabel: 'About',
           tabBarIcon: renderIcon('information-circle-outline'),
@@ -89,9 +94,9 @@ export default function MainTabs(): JSX.Element {
       />
       <Tab.Screen
         name="ContactUs"
-        component={ContactUs as any}
+        component={ContactUs}
         options={{
-          tabBarLabel: 'Contact Us',
+          tabBarLabel: 'Contact',
           tabBarIcon: renderIcon('call-outline'),
         }}
       />
